@@ -9,7 +9,7 @@ node::node(node* p, node* l, node* r, int v){
 
 }
 
-node::node(){
+void node::changeColor(){
   // If black make RED
   if(color == false){
     color = true;

@@ -33,6 +33,7 @@ void case2(node* n, node* p, node* g, node* u, node*& root);
 
 
 //Rrotation
+void case5R(node* n, node* p, node* g, node* u, node*& root);
 //Lrotation
 
 void print(int depth, node* current);
@@ -138,9 +139,7 @@ void checkViolations(node* n, node* p, node* g, node* u, node*& root){
   cout<<"Node: "<<n->value<<" ";
   cout<<"Root: "<<root->value<<" ";
   cout<<"Parent: "<<p->value<<" ";
-  /*  if(s != NULL){
-    cout<<"Sibiling: "<<s->value<< " ";
-  }*/
+  
   if(u != NULL){
     cout<<"Uncle: "<<u->value<<" ";
   }
@@ -168,18 +167,60 @@ void checkViolations(node* n, node* p, node* g, node* u, node*& root){
 
   // CASE 4: root is red
   if(root->color == true){
+    cout<<"Case 4"<<endl;
     root->color = false;
   }
 
-  // CASE 5:
-
-
-  
+  // CASE 5: Uncle is BLACK and inserted node has a a red parent, and is on the right side of the parent if it's on the left and vice versa
 
   
+  // Check colors, n is inhertly red so just check uncle and parent
+  if((u == NULL  || u->color == false) && p->color == true){
+    // Check for inner child
+    if(n == p->left && p == g->right){
+      cout<<"Case 5: right of g, left of p"<<endl;
+      case5R(n, p, g, u, root);
+    }
 
+    if(n == p->right && p == g->left){
+      cout<<"Case 5: left side of grand, right of p"<<endl;
+      //      case5L(n, p, g, u, root);
+    }
+  }
+
+  // Case 6:   // FIX ROOT IN THIS CASE: ITS POSSIBLE FOR G to BE THE ROOT, NOT for P tho!!!!!!!!!!!!!!
 
 }
+
+
+// Right Rotate
+void case5R(node* n, node* p, node* g, node* u, node*& root){
+
+  // Node->left remains the same
+  // P->right remains the same
+  p->left = n->right;
+  n->right = p;
+  g->right = n;
+
+  // update parents
+  p->parent = n;
+  n->parent = g;
+
+
+  // Check violations again with swapping n and p, should call case 6
+  checkViolations(p, n, g, u, root);
+
+  // Dotnt needa do this seperatley right?? vvvvvvvvvv
+  
+  // Reassign
+  // G stays g
+  //n becomes p
+  // p becmoes n
+
+  // Check violations again with new assignments
+}
+
+
 
 void case2(node* n, node* p, node* g, node* u, node*& root){
   // fix  case 2, recursively?

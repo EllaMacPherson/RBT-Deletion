@@ -36,6 +36,7 @@ void case2(node* n, node* p, node* g, node* u, node*& root);
 void case5R(node* n, node* p, node* g, node* u, node*& root);
 void case5L(node* n, node* p, node* g, node* u, node*& root);
 //Lrotation
+void case6L(node* n, node* p, node* g, node* u, node*& root);
 
 void print(int depth, node* current);
 
@@ -196,12 +197,67 @@ void checkViolations(node* n, node* p, node* g, node* u, node*& root){
 
     if( n == p->right && p == g->right){
       cout<<"Case 6: right side"<<endl;
+      case6R(n, p, g, u, root);
     }
     if(n == p->left && p == g->left){
       cout<<"Case 6: left side"<<endl;
+      case6L(n, p, g, u, root);
     }
     
   }
+
+}
+
+// Right rotate for Case 6,
+void case6R(node* n, node* p, node* g, node* u, node*& root){
+
+}
+
+// Left rotate for Case 6, works with root and not root
+void case6L(node* n, node* p, node* g, node* u, node*& root){
+  //left rotate for case 6
+
+  //n->left + n->right remains the same
+  //u->left + u->right remains the same
+  //g->right remains the same
+
+  //Rotate
+  cout<<"running func"<<endl;
+  node* oldpright = p->right;
+  cout<<"accessing p->right"<<endl;
+  p->right = g;
+  cout<<"set p->right = g"<<endl;
+  g->left = oldpright;
+  cout<<"set g->left = to old p right"<<endl;
+  
+
+  //fix parents + check for root
+  if(g->left != NULL){
+    g->left->parent = g;
+  }
+
+  cout<<"set new g->left->parent to g!"<<endl;
+
+  node* goldparent = g->parent;
+  
+  g->parent = p;
+
+  if(root == g){
+    root = p;
+  }else{
+    p->parent = goldparent;
+    goldparent->right = p; // IS IT ALWAYS GONNA BE RIGHT???? IF ERROR IN FUTURE AT THIS PART IT MAY BE THIS!!
+  }
+  
+  cout<<"rotated not recolored"<<endl;
+
+
+  //Recolor
+  p->changeColor();
+  g->changeColor();
+  cout<<"recolored"<<endl;
+
+  // recall again with new variables DONT NEED TO BECAUSE ALL CONDITIONS SHOULD BE SATISIFED I BELIEVE?
 
 }
 

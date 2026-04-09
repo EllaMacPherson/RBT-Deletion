@@ -18,25 +18,26 @@ NULLS ARE BLACK!!!!!!!
 
 // Functions declerations 
 
-// get uncle  return node*
+// get uncle return node*
 node* getUncle(node* n);
 node* getSibiling(node* n);
 
 // BST insertion
 void bstinsert(node*& root, node* current, int value, node*& storage);
 
-// detect case/check violatiojs
+// detect case/check violations
 void checkViolations(node* myNode, node* parent, node* grandparent, node* uncle, node*& root);
 
 // function for each case
 void case2(node* n, node* p, node* g, node* u, node*& root);
 
-
-//Rrotation
+//5L+R rotations
 void case5R(node* n, node* p, node* g, node* u, node*& root);
 void case5L(node* n, node* p, node* g, node* u, node*& root);
-//Lrotation
+
+//6L+R rotations -> NOT CALLING CHECK VIOLATIONS AGAIN AFTER THESE
 void case6L(node* n, node* p, node* g, node* u, node*& root);
+void case6R(node* n, node* p, node* g, node* u, node*& root);
 
 void print(int depth, node* current);
 
@@ -51,13 +52,64 @@ int main(){
 
   while(true){
     // Printing stuff 
-    cout<<"Enter INSERT, PRINT"<<endl;
+    cout<<"Enter INSERT, FILE, PRINT"<<endl;
     getline(cin, command);
 
     if(command == "PRINT" || command == "print"){
       print(0, root);
     }
 
+    if(command == "FILE" || command == "file"){
+      string filename = ""; // Stores file name
+      int input = 0; //currently being added
+      
+      cout<<"Please enter name of file: "<<endl;
+      getline(cin, filename);
+      
+      ifstream inputFile;
+      inputFile.open(filename);
+      
+      if(!inputFile.is_open()){
+	cout<<"file doesnt exist"<<endl;
+      }
+      else{
+	while(inputFile >> input){
+	  // Do insertion for THAT number
+	  //Initial BSTinsert set it to RED
+	  node* recent = NULL;
+	  cout<<"Currently inserting: "<<input<<endl;
+	  bstinsert(root, root, input, recent); // structure GOOD, parents GOOD, node* of js added GOOD, uncle GOOD
+	  
+	  node* uncle = NULL;
+	  node* grandpa = NULL;
+	  node* sibiling = NULL;
+	  // Set uncle if exists
+	  if(root != recent){
+	    sibiling = getSibiling(recent);
+	  }
+	  
+	  if(recent->parent != root && recent != root){
+	    uncle = getUncle(recent);
+	  }else{
+	    //	    cout<<"just inserted one has root before uncle"<<endl;
+	  }
+	  // Set grandpa if exists
+	  if(recent->parent != root && recent != root){
+	    grandpa = recent->parent->parent;
+	  }else{
+	    //	    cout<<"just inserted one has root before grandpa"<<endl;
+	  }
+	  // REMEMBER: uncle is NULL if its the root or child of root but if that is NOT the case then it is VALID and needs to be checked for in cases
+	  
+	  
+	  if(recent != root){ // NO violations if root just inserted
+	    checkViolations(recent, recent->parent, grandpa, uncle, root);
+	  }
+	  
+	}
+      }
+    }
+    
 
   
   
@@ -85,7 +137,7 @@ int main(){
       if(recent->parent != root && recent != root){
 	uncle = getUncle(recent);
       }else{
-	cout<<"just inserted one has root before uncle"<<endl;
+	//	cout<<"just inserted one has root before uncle"<<endl;
       }
       // Set grandpa if exists
       if(recent->parent != root && recent != root){
@@ -95,7 +147,6 @@ int main(){
       }
       // REMEMBER: uncle is NULL if its the root or child of root but if that is NOT the case then it is VALID and needs to be checked for in cases
 
-      //FIX  GRANDPA NOT BEING FED INTO THIS RIGHTTT!!
       if(recent != root){ // NO violations if root just inserted
 	checkViolations(recent, recent->parent, grandpa, uncle, root);
       }
@@ -210,7 +261,41 @@ void checkViolations(node* n, node* p, node* g, node* u, node*& root){
 
 // Right rotate for Case 6,
 void case6R(node* n, node* p, node* g, node* u, node*& root){
+    //Rotate
+  //  cout<<"running func"<<endl;
+  node* oldpleft = p->left;
+  //  cout<<"accessing p->left"<<endl;
+  p->left = g;
+  //  cout<<"set p->right = g"<<endl;
+  g->right = oldpleft;
+  //  cout<<"set g->left = to old p right"<<endl;
+  
 
+  //fix parents + check for root
+  if(g->right != NULL){
+    g->right->parent = g;
+  }
+
+  //  cout<<"set new g->left->parent to g!"<<endl;
+
+  node* goldparent = g->parent;
+  
+  g->parent = p;
+
+  if(root == g){
+    root = p;
+  }else{
+    p->parent = goldparent;
+    goldparent->left = p; // IS IT ALWAYS GONNA BE LEFT???? IF ERROR IN FUTURE AT THIS PART IT MAY BE THIS!!
+  }
+  
+  //  cout<<"rotated not recolored"<<endl;
+
+
+  //Recolor
+  p->changeColor();
+  g->changeColor();
+  //  cout<<"recolored"<<endl;
 }
 
 // Left rotate for Case 6, works with root and not root
@@ -222,13 +307,13 @@ void case6L(node* n, node* p, node* g, node* u, node*& root){
   //g->right remains the same
 
   //Rotate
-  cout<<"running func"<<endl;
+  //  cout<<"running func"<<endl;
   node* oldpright = p->right;
-  cout<<"accessing p->right"<<endl;
+  //  cout<<"accessing p->right"<<endl;
   p->right = g;
-  cout<<"set p->right = g"<<endl;
+  //  cout<<"set p->right = g"<<endl;
   g->left = oldpright;
-  cout<<"set g->left = to old p right"<<endl;
+  //  cout<<"set g->left = to old p right"<<endl;
   
 
   //fix parents + check for root
@@ -236,7 +321,7 @@ void case6L(node* n, node* p, node* g, node* u, node*& root){
     g->left->parent = g;
   }
 
-  cout<<"set new g->left->parent to g!"<<endl;
+  //  cout<<"set new g->left->parent to g!"<<endl;
 
   node* goldparent = g->parent;
   
@@ -249,13 +334,13 @@ void case6L(node* n, node* p, node* g, node* u, node*& root){
     goldparent->right = p; // IS IT ALWAYS GONNA BE RIGHT???? IF ERROR IN FUTURE AT THIS PART IT MAY BE THIS!!
   }
   
-  cout<<"rotated not recolored"<<endl;
+  //  cout<<"rotated not recolored"<<endl;
 
 
   //Recolor
   p->changeColor();
   g->changeColor();
-  cout<<"recolored"<<endl;
+  //  cout<<"recolored"<<endl;
 
   // recall again with new variables DONT NEED TO BECAUSE ALL CONDITIONS SHOULD BE SATISIFED I BELIEVE?
 

@@ -56,7 +56,11 @@ int main(){
     getline(cin, command);
 
     if(command == "PRINT" || command == "print"){
-      print(0, root);
+      if(root == NULL){
+	cout<"There is no data in the tree"<<endl;
+      }else{
+	print(0, root);
+      }
     }
 
     if(command == "FILE" || command == "file"){

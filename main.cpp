@@ -266,6 +266,9 @@ void case6R(node* n, node* p, node* g, node* u, node*& root){
   node* oldpleft = p->left;
   //  cout<<"accessing p->left"<<endl;
   p->left = g;
+  /*  if(p->left != NULL){
+    p->left->parent = p;
+  }*/
   //  cout<<"set p->right = g"<<endl;
   g->right = oldpleft;
   //  cout<<"set g->left = to old p right"<<endl;
@@ -286,7 +289,12 @@ void case6R(node* n, node* p, node* g, node* u, node*& root){
     root = p;
   }else{
     p->parent = goldparent;
-    goldparent->left = p; // IS IT ALWAYS GONNA BE LEFT???? IF ERROR IN FUTURE AT THIS PART IT MAY BE THIS!!
+    if(goldparent-> right == g){
+      goldparent->right = p;
+    }else{
+      goldparent->left = p;
+    }
+     // IS IT ALWAYS GONNA BE LEFT???? IF ERROR IN FUTURE AT THIS PART IT MAY BE THIS!!
   }
   
   //  cout<<"rotated not recolored"<<endl;
@@ -331,7 +339,12 @@ void case6L(node* n, node* p, node* g, node* u, node*& root){
     root = p;
   }else{
     p->parent = goldparent;
-    goldparent->right = p; // IS IT ALWAYS GONNA BE RIGHT???? IF ERROR IN FUTURE AT THIS PART IT MAY BE THIS!!
+    if(goldparent->left == g){
+      goldparent->left = p;
+    }else{
+      goldparent->right = p;
+    }
+
   }
   
   //  cout<<"rotated not recolored"<<endl;

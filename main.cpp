@@ -6,15 +6,16 @@
 using namespace std;
 
 /*
+  Ella MacPherson Red black tree insertion 4/14/2026
+  
   1. Every node is either red or black.
   2. All null nodes are considered black.
   3. A red node does not have a red child.
   4. Every path from a given node to any of its leaf nodes (that is, to any descendant null node) goes
   through the same number of black nodes.
 
-NULLS ARE BLACK!!!!!!!
-
  */
+
 
 // Functions declerations 
 
@@ -28,17 +29,17 @@ void bstinsert(node*& root, node* current, int value, node*& storage);
 // detect case/check violations
 void checkViolations(node* myNode, node* parent, node* grandparent, node* uncle, node*& root);
 
-// function for each case
-void case2(node* n, node* p, node* g, node* u, node*& root);
+// function for each case:
 
-//5L+R rotations
+void case2(node* n, node* p, node* g, node* u, node*& root);
+// 5L+R rotations
 void case5R(node* n, node* p, node* g, node* u, node*& root);
 void case5L(node* n, node* p, node* g, node* u, node*& root);
-
-//6L+R rotations -> NOT CALLING CHECK VIOLATIONS AGAIN AFTER THESE
+// 6L+R rotations
 void case6L(node* n, node* p, node* g, node* u, node*& root);
 void case6R(node* n, node* p, node* g, node* u, node*& root);
 
+// Display tree
 void print(int depth, node* current);
 
 
@@ -47,11 +48,10 @@ int main(){
   string command = "";
   // Hold root of the tree, start as NULL
   node* root = NULL;
-
-  // new node(parent, l, r, value);
-
+  
+  // Loop for commands
   while(true){
-    // Printing stuff 
+
     cout<<"Enter INSERT, FILE, PRINT"<<endl;
     getline(cin, command);
 
@@ -61,7 +61,7 @@ int main(){
 
     if(command == "FILE" || command == "file"){
       string filename = ""; // Stores file name
-      int input = 0; //currently being added
+      int input = 0; // Currently being added
       
       cout<<"Please enter name of file: "<<endl;
       getline(cin, filename);
@@ -75,32 +75,27 @@ int main(){
       else{
 	while(inputFile >> input){
 	  // Do insertion for THAT number
-	  //Initial BSTinsert set it to RED
+	  // Initial BSTinsert set it to RED
 	  node* recent = NULL;
-	  cout<<"Currently inserting: "<<input<<endl;
-	  bstinsert(root, root, input, recent); // structure GOOD, parents GOOD, node* of js added GOOD, uncle GOOD
+	  //	  cout<<"Currently inserting: "<<input<<endl;
+	  bstinsert(root, root, input, recent); 
 	  
 	  node* uncle = NULL;
 	  node* grandpa = NULL;
 	  node* sibiling = NULL;
+
 	  // Set uncle if exists
 	  if(root != recent){
 	    sibiling = getSibiling(recent);
 	  }
-	  
 	  if(recent->parent != root && recent != root){
 	    uncle = getUncle(recent);
-	  }else{
-	    //	    cout<<"just inserted one has root before uncle"<<endl;
 	  }
+	  
 	  // Set grandpa if exists
 	  if(recent->parent != root && recent != root){
 	    grandpa = recent->parent->parent;
-	  }else{
-	    //	    cout<<"just inserted one has root before grandpa"<<endl;
 	  }
-	  // REMEMBER: uncle is NULL if its the root or child of root but if that is NOT the case then it is VALID and needs to be checked for in cases
-	  
 	  
 	  if(recent != root){ // NO violations if root just inserted
 	    checkViolations(recent, recent->parent, grandpa, uncle, root);
@@ -114,17 +109,16 @@ int main(){
   
   
     if(command == "INSERT" || command == "insert"){
-      // get inputs
+      // Get inputs
       int value = 0;
       cout<<"What value would you like to add?"<<endl;
       cin>>value;
       cin.ignore();
-
       
       node* recent = NULL; // for storage of newly added one so it so can be used for checking conditions
 
       //Initial BSTinsert set it to RED
-      bstinsert(root, root, value, recent); // structure GOOD, parents GOOD, node* of js added GOOD, uncle GOOD
+      bstinsert(root, root, value, recent); 
 
       node* uncle = NULL;
       node* grandpa = NULL;
@@ -133,86 +127,51 @@ int main(){
       if(root != recent){
 	sibiling = getSibiling(recent);
       }
-      
       if(recent->parent != root && recent != root){
 	uncle = getUncle(recent);
-      }else{
-	//	cout<<"just inserted one has root before uncle"<<endl;
       }
+      
       // Set grandpa if exists
       if(recent->parent != root && recent != root){
 	grandpa = recent->parent->parent;
-      }else{
-	cout<<"just inserted one has root before grandpa"<<endl;
       }
-      // REMEMBER: uncle is NULL if its the root or child of root but if that is NOT the case then it is VALID and needs to be checked for in cases
 
       if(recent != root){ // NO violations if root just inserted
 	checkViolations(recent, recent->parent, grandpa, uncle, root);
       }
 
-      // I HAVE: the UNCLE, the NODE* js added, its PARENT, its GRANDPARENT the ROOT,
-      
-
-      
-
-      //      checkViolations();
-      //Check violations WIKIPEDIA + GALBY VIDEO ->need way to look at uncles and such think about this
-      /* Possible cases:
-	 1. Inserting at root. -> set it to B
-       
-	 2. Parent is B -> DONE
-       
-	 3. Parent AND uncle are R -> change Parent and Unc to BLACK, change Grandparent to RED -> Recursively call on Grandparent (if grandparent is root????)
-       
-	 4. Uncle is B AND { (Parent is left AND node is right) || (Parent is right AND node is left) } ->
-	 Execute a LEFT rotation  if it's node on RIGHT
-	 Executre a RIGHT rotation if it's node on LEFT
-	 then call CASE 5
-	
-	 5. Uncle is B AND { (Parent is left AND node is left) || (Parent is right AND node is right) } ->
-	 Have parent left rotate with grandparent
-	 Have parent right rotate with grandparent
-	 Switch grandparent and parent colors
-
-	 AND THEN ALL THESE WHEN GRANDPARENT OR PARENT IS ROOT IS GONNA BE DIFFERENT!!!!!!!!!!!!!!!!!!!!!!!
-        
-      */
-      // If violations foubd, fIX THEM
-    
     }
   }
 
 }
 
 
-// ALL RIGHT: we have THE NODE,THE PARENT, THE ROOT, and GRANPARENT + UNCLE (Which can be NULL, if they are up by root they simply do not exist, if they are NOT then they are a black LEAF!!!!!!!) js for uncle or sibiling. if gp null then we are at left or right of ROOT
+// Check for violations
 void checkViolations(node* n, node* p, node* g, node* u, node*& root){
-  // check each and every case and then call a seprate functin to FIX that case
-  cout<<"Node: "<<n->value<<" ";
-  cout<<"Root: "<<root->value<<" ";
-  cout<<"Parent: "<<p->value<<" ";
-  
-  if(u != NULL){
-    cout<<"Uncle: "<<u->value<<" ";
-  }
-  if(g != NULL){
-    cout<<"Grandparent: "<< g->value<<" ";
-  }
-  cout<<endl;
 
-  // ALRIGHT lets check our cases -- CASE 1-4 WORKING TO THE BEST OF MY KNOWLEDGE
+  // Helpful test cout's that inform of current node that needs to be fixed respective values
+  //  cout<<"Node: "<<n->value<<" ";
+  //  cout<<"Root: "<<root->value<<" ";
+  //  cout<<"Parent: "<<p->value<<" ";
+  
+  //  if(u != NULL){
+  //    cout<<"Uncle: "<<u->value<<" ";
+  //  }
+  //  if(g != NULL){
+  //    cout<<"Grandparent: "<< g->value<<" ";
+  //  }
+  //  cout<<endl;
 
   // CASE 1: Current Nodes parent is BLACK
   if(p->color == false){
-    cout<<"Case 1"<<endl;
+    //    cout<<"Case 1"<<endl;
     return;
   }
 
   // CASE 2: Parent and uncle are RED
   if(u != NULL){
     if(p->color == true && u->color == true){
-      cout<<"Case 2"<<endl;
+      //cout<<"Case 2"<<endl;
       // CASE 3: wrapped in here, and fixed with case 4 
       case2(n, p, g, u, root);
     }
@@ -220,7 +179,7 @@ void checkViolations(node* n, node* p, node* g, node* u, node*& root){
 
   // CASE 4: root is red
   if(root->color == true){
-    cout<<"Case 4"<<endl;
+    //    cout<<"Case 4"<<endl;
     root->color = false;
   }
 
@@ -231,27 +190,27 @@ void checkViolations(node* n, node* p, node* g, node* u, node*& root){
   if((u == NULL  || u->color == false) && p->color == true){
     // Check for inner child
     if(n == p->left && p == g->right){
-      cout<<"Case 5: right of g, left of p"<<endl;
+      //      cout<<"Case 5: right of g, left of p"<<endl;
       case5R(n, p, g, u, root);
     }
 
     if(n == p->right && p == g->left){
-      cout<<"Case 5: left side of grand, right of p"<<endl;
+      //      cout<<"Case 5: left side of grand, right of p"<<endl;
       case5L(n, p, g, u, root);
     }
   }
 
-  // Case 6: Uncle is BLACK and inserted node has a red parent and is directly to the right or left   // FIX ROOT IN THIS CASE: ITS POSSIBLE FOR G to BE THE ROOT, NOT for P tho!!!!!!!!!!!!!!
+  // Case 6: Uncle is BLACK and inserted node has a red parent and is directly to the right or left
 
   if((u == NULL || u->color == false) && p->color == true){
     // Check for outter child
 
     if( n == p->right && p == g->right){
-      cout<<"Case 6: right side"<<endl;
+      //      cout<<"Case 6: right side"<<endl;
       case6R(n, p, g, u, root);
     }
     if(n == p->left && p == g->left){
-      cout<<"Case 6: left side"<<endl;
+      //      cout<<"Case 6: left side"<<endl;
       case6L(n, p, g, u, root);
     }
     
@@ -261,25 +220,18 @@ void checkViolations(node* n, node* p, node* g, node* u, node*& root){
 
 // Right rotate for Case 6,
 void case6R(node* n, node* p, node* g, node* u, node*& root){
-    //Rotate
-  //  cout<<"running func"<<endl;
+  //Rotate
   node* oldpleft = p->left;
-  //  cout<<"accessing p->left"<<endl;
-  p->left = g;
-  /*  if(p->left != NULL){
-    p->left->parent = p;
-  }*/
-  //  cout<<"set p->right = g"<<endl;
-  g->right = oldpleft;
-  //  cout<<"set g->left = to old p right"<<endl;
-  
 
-  //fix parents + check for root
+  p->left = g;
+
+
+  g->right = oldpleft;
+ 
+  // Fix parents + check for root
   if(g->right != NULL){
     g->right->parent = g;
   }
-
-  //  cout<<"set new g->left->parent to g!"<<endl;
 
   node* goldparent = g->parent;
   
@@ -294,42 +246,30 @@ void case6R(node* n, node* p, node* g, node* u, node*& root){
     }else{
       goldparent->left = p;
     }
-     // IS IT ALWAYS GONNA BE LEFT???? IF ERROR IN FUTURE AT THIS PART IT MAY BE THIS!!
+   
   }
-  
-  //  cout<<"rotated not recolored"<<endl;
 
 
   //Recolor
   p->changeColor();
   g->changeColor();
-  //  cout<<"recolored"<<endl;
 }
 
-// Left rotate for Case 6, works with root and not root
+// Left rotate for Case 6
 void case6L(node* n, node* p, node* g, node* u, node*& root){
-  //left rotate for case 6
-
-  //n->left + n->right remains the same
-  //u->left + u->right remains the same
-  //g->right remains the same
 
   //Rotate
-  //  cout<<"running func"<<endl;
+
   node* oldpright = p->right;
-  //  cout<<"accessing p->right"<<endl;
+
   p->right = g;
-  //  cout<<"set p->right = g"<<endl;
+
   g->left = oldpright;
-  //  cout<<"set g->left = to old p right"<<endl;
-  
 
   //fix parents + check for root
   if(g->left != NULL){
     g->left->parent = g;
   }
-
-  //  cout<<"set new g->left->parent to g!"<<endl;
 
   node* goldparent = g->parent;
   
@@ -346,24 +286,18 @@ void case6L(node* n, node* p, node* g, node* u, node*& root){
     }
 
   }
-  
-  //  cout<<"rotated not recolored"<<endl;
 
 
   //Recolor
   p->changeColor();
   g->changeColor();
-  //  cout<<"recolored"<<endl;
-
-  // recall again with new variables DONT NEED TO BECAUSE ALL CONDITIONS SHOULD BE SATISIFED I BELIEVE?
 
 }
 
 // Left rotate through parent CASE 5
 void case5L(node* n, node* p, node* g, node* u, node*& root){
-  // Node->right remains the same
-  // Parent->left remains the same
 
+  // Rotate
   p->right = n->left;
   if(p->right != NULL){
     p->right->parent = p;
@@ -372,9 +306,11 @@ void case5L(node* n, node* p, node* g, node* u, node*& root){
   n->left = p;
   g->left = n;
 
+  // Update parents
   p->parent = n;
   n->parent = g;
 
+  // Check for more violations
   checkViolations(p, n, g, u, root);
   
 }
@@ -383,8 +319,8 @@ void case5L(node* n, node* p, node* g, node* u, node*& root){
 // Right Rotate through parent CASE 5
 void case5R(node* n, node* p, node* g, node* u, node*& root){
 
-  // Node->left remains the same
-  // P->right remains the same
+
+  // Rotate
   p->left = n->right;
   if(p->left != NULL){
     p->left->parent = p;
@@ -393,57 +329,30 @@ void case5R(node* n, node* p, node* g, node* u, node*& root){
   n->right = p;
   g->right = n;
 
-  // update parents
+  // Update parents
   p->parent = n;
   n->parent = g;
 
 
-  // Check violations again with swapping n and p, should call case 6
+  // Check violations again with reassignments
   checkViolations(p, n, g, u, root);
-
-  // Dotnt needa do this seperatley right?? vvvvvvvvvv
-  
-  // Reassign
-  // G stays g
-  //n becomes p
-  // p becmoes n
-
-  // Check violations again with new assignments
 }
 
 
 
 void case2(node* n, node* p, node* g, node* u, node*& root){
-  // fix  case 2, recursively?
+
   // Set grandparent to red
   g->color = true;
 
   // Set parent + uncle to black
   p->color = false;
   u->color = false;
-  // current node remains red
-
-  /*  // If the grandparent has a grandparent
-  if(g->parent != NULL){
-    
-    if(g->parent->parent != NULL){
-      
-    }
-    else{
-      return;
-    }
-    // g has a parent, but not a grandparent, IT HAS TO BE THE ROOT, meaning its okay that the g is red cause the root is black hurray
-  }
-  else{
-
-    return;
-  }*/
 
   // Repeat if the grandparent has a red parent and is NOT the root CASE 3
   if(g->parent != NULL && g->parent != root){
     if(g->parent->color == true){
       
-      //void checkViolations(node* n, node* p, node* g, node* u, node*& root)
       // Update values 
       node* gg = NULL;
       node* gu = NULL;
@@ -457,15 +366,11 @@ void case2(node* n, node* p, node* g, node* u, node*& root){
       checkViolations(g, g->parent, gg, gu, root);
     }
   }
-  
-
-
-
-  // g becomes n if the case must continue
+ 
 
 }
 
-// not needed for insertion oopsie daisie i scrolled too far
+// Not needed for insertion oopsie daisie i scrolled too far on wikipedia
 node* getSibiling(node* n){
   node* p = n->parent;
   if(n == p->left){
@@ -530,7 +435,7 @@ void bstinsert(node*& root, node* current, int value, node*& storage){
 
 }
 
-// Print function the same as binary search tree but add printing of R or B
+// Print function the same as binary search tree but added printing of R or B
 void print(int depth, node* current){
 
   //move all the way to the right of the tree

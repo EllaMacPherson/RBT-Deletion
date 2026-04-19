@@ -14,6 +14,8 @@ using namespace std;
   4. Every path from a given node to any of its leaf nodes (that is, to any descendant null node) goes
   through the same number of black nodes.
 
+  DELETION
+
  */
 
 
@@ -22,9 +24,14 @@ using namespace std;
 // get uncle return node*
 node* getUncle(node* n);
 node* getSibiling(node* n);
+node* getCloseNeph(node* n, node* s);
+node* getDistantNeph(node* n, node* s);
 
 // BST insertion
 void bstinsert(node*& root, node* current, int value, node*& storage);
+
+// Search
+void search(int s, node* current, bool& found);
 
 // detect case/check violations
 void checkViolations(node* myNode, node* parent, node* grandparent, node* uncle, node*& root);
@@ -42,6 +49,9 @@ void case6R(node* n, node* p, node* g, node* u, node*& root);
 // Display tree
 void print(int depth, node* current);
 
+// DELETE functions
+void getNode(int input, node* current, node*& n);
+
 
 int main(){
 
@@ -52,12 +62,106 @@ int main(){
   // Loop for commands
   while(true){
 
-    cout<<"Enter INSERT, FILE, PRINT"<<endl;
+    cout<<"Enter INSERT, FILE, PRINT, SEARCH"<<endl;
     getline(cin, command);
 
+    if(command == "SEARCH" || command == "search"){
+      //search func + output
+      cout<<"What number are you searching for?"<<endl;
+      int s = 0;
+      cin>>s;
+      cin.ignore();
+      bool found = false; // keep track
+      if(root != NULL){
+	search(s, root, found);
+	if(found == false){
+	  cout<<"Your number is not in the tree.."<<endl;
+	}else{
+	  cout<<"Your number is in the tree"<<endl;
+	}
+      }
+      else{
+	cout<<"Tree is empty"<<endl;
+      }
+    }
+
+    if(command == "delete" || command == "DELETE"){
+      cout<<"Which number would you like to delete?"<<endl;
+      int input = 0;
+
+      cin>>input;
+      cin.ignore();
+
+      if(root == NULL){
+	cout<<"Tree is empty"<<endl;
+      }else{
+	bool exists = false;
+	search(input, root, exists);
+	if(exists == true){
+
+	  // Get all node values relevant for checking cases
+	  node* n = NULL;
+	  getNode(input, root, n);
+	  
+
+	  node* p = NULL;
+	  if(n != root){
+	    p = n->parent;
+	  }
+
+	  node* s = getSibiling(n);
+	  node* c = NULL;
+	  node* d = NULL;
+	  if(s != NULL){
+	    c = getCloseNeph(n, s);
+	    d = getDistantNeph(n, s);
+	  }
+
+	  // Testing outputs
+	  cout<<"Deleting: "<<endl;
+
+	  cout<<"Node: "<< n->value;
+
+	  if(p != NULL){
+	    cout<<" Parent: "<< p->value;
+	  }
+	  if(s != NULL){
+	    cout<<" Sibiling: "<< s->value;
+	  }
+	  if(c != NULL){
+	    cout<<" Close Neph: "<<c->value;
+	  }
+	  if(d != NULL){
+	    cout<<" Distant Neph: " <<d->value;
+	  }
+
+	  cout<<endl;
+	  // I have the ability to get all these values ^^^^^^^^
+	  //OKAY DO THIS NEXT TIME WORKING****:
+
+
+	  // *** DO I NEED TO BST DELETE FIRST AND THEN CHECK CASES SIMILAR TO INSERTION??? ***
+	  // Only need to check cases once its a double black scenario
+
+	  // OKAY CONCLUSION ASK MR G THIS NEXT TIME:
+	  // 1. feed in node to delete into old bst and remove iteration through. get tothe point where its structuerd, but coloring is js messed u
+	  // 2. Then save color of deleted node
+	  // 3. Save successors color too and position
+
+	  // 4. If double black or deleted node is black -> THEN check cases and fix them?
+
+	  
+	}else{
+	  cout<<"This data is not in the tree"<<endl;
+	}
+      }
+      
+      
+    }
+    
     if(command == "PRINT" || command == "print"){
       if(root == NULL){
-	cout<"There is no data in the tree"<<endl;
+	cout<<"There is no data in the tree"<<endl;
       }else{
 	print(0, root);
       }
@@ -149,21 +253,102 @@ int main(){
 
 }
 
+node* getDistantNeph(node* n, node* s){
+  if(s == n->parent->right){
+    if(s->right != NULL){
+      return s->right;
+    }else{
+      return NULL;
+    }
+  }
+
+  if(s == n->parent->left){
+    if(s->left != NULL){
+      return s->left;
+    }else{
+      return NULL;
+    }
+  }
+
+  return NULL;
+
+}
+
+node* getCloseNeph(node* n, node* s){
+  if(s == n->parent->right){
+    if(s->left != NULL){
+      return s->left;
+    }else{
+      return NULL;
+    }
+  }
+
+  if(s == n->parent->left){
+    if(s->right != NULL){
+      return s->right;
+    }else{
+      return NULL;
+    }
+  }
+
+  return NULL;
+}
+
+// getNode function: locates node that is going to be deleted and returns it
+void getNode(int input, node* current, node*& n){
+   if(current->right != NULL){
+     getNode(input, current->right, n);
+   }
+
+  if(current != NULL){
+    if(current->value == input){
+      n = current;
+      return;
+    }
+  }
+
+  // move all way to the left side of the tree
+  if(current->left != NULL){
+    getNode(input, current->left, n);
+  }
+
+}
+
+// Search function
+void search(int s, node* current, bool& found){
+  if(current->right != NULL){
+    search(s, current->right, found);
+  }
+
+  if(current != NULL){
+    if(current->value == s){
+      found = true;
+      return;
+    }
+  }
+
+  // move all way to the left side of the tree
+  if(current->left != NULL){
+    search(s, current->left, found);
+  }
+}
+
 
 // Check for violations
 void checkViolations(node* n, node* p, node* g, node* u, node*& root){
 
   // Helpful test cout's that inform of current node that needs to be fixed respective values
-  //  cout<<"Node: "<<n->value<<" ";
-  //  cout<<"Root: "<<root->value<<" ";
-  //  cout<<"Parent: "<<p->value<<" ";
+  /*    cout<<"Node: "<<n->value<<" ";
+    cout<<"Root: "<<root->value<<" ";
+    cout<<"Parent: "<<p->value<<" ";
   
-  //  if(u != NULL){
-  //    cout<<"Uncle: "<<u->value<<" ";
-  //  }
-  //  if(g != NULL){
-  //    cout<<"Grandparent: "<< g->value<<" ";
-  //  }
+    if(u != NULL){
+      cout<<"Uncle: "<<u->value<<" ";
+    }
+    if(g != NULL){
+      cout<<"Grandparent: "<< g->value<<" ";
+    }
+   */
   //  cout<<endl;
 
   // CASE 1: Current Nodes parent is BLACK

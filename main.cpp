@@ -51,7 +51,8 @@ void print(int depth, node* current);
 
 // DELETE functions
 void getNode(int input, node* current, node*& n);
-
+void getValues(node*& n, node*& p, node*& s, node*& c, node*& d, node*& root);
+void simpleDeletion(node* n, node* root);
 
 int main(){
 
@@ -99,48 +100,25 @@ int main(){
 	search(input, root, exists);
 	if(exists == true){
 
+	  
 	  // Get all node values relevant for checking cases
 	  node* n = NULL;
 	  getNode(input, root, n);
-	  
 
 	  node* p = NULL;
-	  if(n != root){
-	    p = n->parent;
-	  }
-
-	  node* s = getSibiling(n);
+	  node* s = NULL;
 	  node* c = NULL;
 	  node* d = NULL;
-	  if(s != NULL){
-	    c = getCloseNeph(n, s);
-	    d = getDistantNeph(n, s);
-	  }
+	  
+	  // Test ability to get case valuse
+	  getValues(n, p, s, c, d, root);
 
-	  // Testing outputs
-	  cout<<"Deleting: "<<endl;
-
-	  cout<<"Node: "<< n->value;
-
-	  if(p != NULL){
-	    cout<<" Parent: "<< p->value;
-	  }
-	  if(s != NULL){
-	    cout<<" Sibiling: "<< s->value;
-	  }
-	  if(c != NULL){
-	    cout<<" Close Neph: "<<c->value;
-	  }
-	  if(d != NULL){
-	    cout<<" Distant Neph: " <<d->value;
-	  }
-
-	  cout<<endl;
+	  // pre case checking deletion func
+	  simpleDeletion(n, root);
+	  
 	  // I have the ability to get all these values ^^^^^^^^
-	  //OKAY DO THIS NEXT TIME WORKING****:
+	  
 
-
-	  // *** DO I NEED TO BST DELETE FIRST AND THEN CHECK CASES SIMILAR TO INSERTION??? ***
 	  // Only need to check cases once its a double black scenario
 
 	  // OKAY CONCLUSION ASK MR G THIS NEXT TIME:
@@ -149,6 +127,12 @@ int main(){
 	  // 3. Save successors color too and position
 
 	  // 4. If double black or deleted node is black -> THEN check cases and fix them?
+
+	  //what im running with:
+
+	  // 1. Get all values and data line in delete command func
+	  // Create a deletefunc for SIMPLE delete
+	  // then anotha deletefunc for complex cases ->fixdelete
 
 	  
 	}else{
@@ -251,6 +235,67 @@ int main(){
     }
   }
 
+}
+
+void simpleDeletion(node* n, node* root){
+
+  // If deleted item is ROOT and NO CHILDREN
+  if(n == root && n->right == NULL && n->left == NULL){
+    delete n;
+    root = NULL;
+  }
+
+  // If color of node is RED -> just remove it NO cases needa be fixed
+  if(n->color == ){
+    // copy bstdelete?
+  }
+
+  // If only 1 child, replace node with its child and color it black
+  
+  // 2 child case, swap integers and make it a 1 child delete case
+  if(n->right != NULL & n->left != NULL){
+
+
+    
+  }
+}
+
+void getValues(node*& n, node*& p, node*& s, node*& c, node*& d, node*& root){
+
+  p = NULL;
+  if(n != root){
+    p = n->parent;
+  }
+  
+  s = getSibiling(n);
+  c = NULL;
+  d = NULL;
+  if(s != NULL){
+    c = getCloseNeph(n, s);
+    d = getDistantNeph(n, s);
+  }
+  
+  // Testing outputs
+  cout<<"Deleting: "<<endl;
+  
+  cout<<"Node: "<< n->value;
+
+  if(p != NULL){
+	    cout<<" Parent: "<< p->value;
+  }
+  if(s != NULL){
+    cout<<" Sibiling: "<< s->value;
+  }
+  if(c != NULL){
+    cout<<" Close Neph: "<<c->value;
+  }
+  if(d != NULL){
+    cout<<" Distant Neph: " <<d->value;
+  }
+
+  cout<<endl;
+  
+	  
 }
 
 node* getDistantNeph(node* n, node* s){

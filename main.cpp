@@ -52,7 +52,9 @@ void print(int depth, node* current);
 // DELETE functions
 void getNode(int input, node* current, node*& n);
 void getValues(node*& n, node*& p, node*& s, node*& c, node*& d, node*& root);
-void simpleDeletion(node* n, node* root);
+void simpleDeletion(node* n, node*& root);
+void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root);
+node* getSuccessor(node* n);
 
 int main(){
 
@@ -237,27 +239,146 @@ int main(){
 
 }
 
-void simpleDeletion(node* n, node* root){
+void simpleDeletion(node* n, node*& root){
 
   // If deleted item is ROOT and NO CHILDREN
   if(n == root && n->right == NULL && n->left == NULL){
+    cout<<"Running simple case 3"<<endl;
     delete n;
     root = NULL;
+    return; // Done
   }
 
-  // If color of node is RED -> just remove it NO cases needa be fixed
-  if(n->color == ){
+  // If color of node is RED -> just replace it with its child it
+  else if((n->left != NULL && n->right == NULL) || (n->right != NULL && n->left == NULL)){
+    // left child case
+    if(n->left != NULL){
+      //check for red
+      if(n->left->color == true){
+	cout<<"Running simple case 2, left side"<<endl;
+	n->left->parent = n->parent;
+	n->left->color = false;
+	if(n->parent->left == n){ //set parents next pointer equal to this
+	  n->parent->left = n->left;
+	}
+	if(n->parent->right == n){
+	  n->parent->right = n->left;
+	}
+	delete n;
+      }
+    }
+
+    // Right child case
+    if(n->right != NULL){
+      //check for red
+      if(n->right->color == true){
+	cout<<"Running simple case 2, right side"<<endl;
+	n->right->parent = n->parent;
+	n->right->color = false;
+	if(n->parent->left == n){ //set parents next pointer equal to this
+	  n->parent->left = n->right;
+	}
+	if(n->parent->right == n){
+	  n->parent->right = n->right;
+	}
+	delete n;
+      }
+    }
     // copy bstdelete?
   }
-
-  // If only 1 child, replace node with its child and color it black
   
   // 2 child case, swap integers and make it a 1 child delete case
-  if(n->right != NULL & n->left != NULL){
+  else if(n->right != NULL & n->left != NULL){
+    // get successor value
+    node* successor = getSuccessor(n);
+    cout<<"simple case 1, sucessor value: "<<successor->value<<endl;
+    n->value = successor->value;
+    simpleDeletion(successor, root);
+  }
 
+  // No children and is RED, remove leaf node
+  else if(n->right == NULL && n->left == NULL && n->color == true){
+    cout<<"simple case 4"<<endl;
+    if(n->parent->left == n){
+      n->parent->left = NULL;
+    }
+    if(n->parent->right == n){
+      n->parent->right = NULL;
+    }
+    delete n;
+  }
+
+  // has no children and is BLACK (complex case, call func for that); if root being deleted and matches all those is handled earlier
+  else if(n->right == NULL && n->left == NULL && n->color == false){
+    cout<<"Complex case, calling complex func"<<endl;
+
+    node* p = NULL;
+    node* s = NULL;
+    node* c = NULL;
+    node* d = NULL;
+    
+    getValues(n,p,s,c,d,root);
 
     
+    // set N equal to NULL
+    if(p->right == n){
+      p->right = NULL;
+    }else{
+      p->left = NULL;
+    }
+    delete n;
+    
+    n = NULL;
+    // On first iteration, n must be NULL
+    complexDeletion(n,p,s,c,d,root);
   }
+}
+
+// Check alll wikipedia cases with this func and fix them, call any corresponding fucntions
+void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
+  // Check inputs
+  cout<<"Executing Complex Deletion: "<<endl;
+
+  if(n != NULL){
+    cout<<"Node: "<< n->value;
+  }else{
+    cout<<"N is null"<<endl;
+  }
+
+  if(p != NULL){
+	    cout<<" Parent: "<< p->value;
+  }
+  if(s != NULL){
+    cout<<" Sibiling: "<< s->value;
+  }
+  if(c != NULL){
+    cout<<" Close Neph: "<<c->value;
+  }
+  if(d != NULL){
+    cout<<" Distant Neph: " <<d->value;
+  }
+
+  cout<<endl;
+  // EXECUTE CASES:
+
+  // Case 1: We are n is our root, we have iterated all the way up
+  if(n == root){
+    cout<<"Case 1"<<endl;
+    return;
+  }
+  
+  
+}
+
+node* getSuccessor(node* n){
+
+  node* s = n->right;
+
+  while(s->left != NULL){
+    s = s->left;
+  }
+
+  return s;
 }
 
 void getValues(node*& n, node*& p, node*& s, node*& c, node*& d, node*& root){
@@ -266,8 +387,11 @@ void getValues(node*& n, node*& p, node*& s, node*& c, node*& d, node*& root){
   if(n != root){
     p = n->parent;
   }
-  
-  s = getSibiling(n);
+  if(n != root){
+    s = getSibiling(n);
+  }else{
+    s = NULL;
+  }
   c = NULL;
   d = NULL;
   if(s != NULL){
@@ -275,7 +399,7 @@ void getValues(node*& n, node*& p, node*& s, node*& c, node*& d, node*& root){
     d = getDistantNeph(n, s);
   }
   
-  // Testing outputs
+  /*// Testing outputs
   cout<<"Deleting: "<<endl;
   
   cout<<"Node: "<< n->value;
@@ -294,7 +418,7 @@ void getValues(node*& n, node*& p, node*& s, node*& c, node*& d, node*& root){
   }
 
   cout<<endl;
-  
+*/  
 	  
 }
 

@@ -59,6 +59,10 @@ node* getSuccessor(node* n);
 // delete rotations
 void deleteCase3L(node* n, node* p, node* s, node* c, node* d, node*& root);
 void deleteCase3R(node* n, node* p, node* s, node* c, node* d, node*& root);
+void deleteCase5R(node* n, node* p, node* s, node* c, node* d, node*& root);
+void deleteCase5L(node* n, node* p, node* s, node* c, node* d, node*& root);
+void deleteCase6L(node* n, node* p, node* s, node* c, node* d, node*& root);
+void deleteCase6R(node* n, node* p, node* s, node* c, node* d, node*& root);
 
 int main(){
 
@@ -395,6 +399,7 @@ void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
     getValues(n,p,s,c,d,root);
     //recall delete 
     complexDeletion(n,p,s,c,d,root);
+    return;
     
   }
 
@@ -428,7 +433,200 @@ void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
    
     // Re call cause case 4,5,6 could fix it next
     complexDeletion(n,p,s,c,d,root);
+    return;
   }
+
+  // Case 4: s + c + d are black, p is red
+  if(p->color == true && (s == NULL || s->color == false) &&
+     (c == NULL || c->color == false) && (d == NULL || d->color == false)){
+       cout<<"Case 4"<<endl;
+       // make p black, s red
+       p->color = false;
+       s->color = true;
+       
+     }
+
+  // Case 5: s + d, are black, c is red, p is ANY COLOR
+  if((s == NULL || s->color == false) && (d == NULL || d->color == false)
+     && (c != NULL && c->color == true)){
+    cout<<"Case 5"<<endl;
+    // Rotate
+    if(p->right == s){ // n is on left side
+   
+      deleteCase5L(n,p,s,c,d,root);
+    }
+    if(p->left == s){
+   
+      deleteCase5R(n,p,s,c,d,root);
+    }
+
+    //recolor
+   
+    c->color = false;
+    s->color = true;
+
+    //reassign
+    node* temp = s;
+    s = c;
+   
+    if(p->right == s){
+      if(s->right != NULL){
+	d = s->right;
+      }else{
+	d = NULL;
+      }
+      if(s->left != NULL){
+	c = s->left;
+      }else{
+	c = NULL;
+      }
+    }
+    if(p->left == s){
+      if(s->left != NULL){
+	d = s->left;
+      }else{
+	d = NULL;
+      }
+      if(s->right != NULL){
+	c = s->right;
+      }else{
+	c = NULL;
+      }
+    }
+    
+   
+    //recall -> d6 is next
+    complexDeletion(n,p,s,c,d,root);
+    return;
+  }
+
+  // Case 6: p + c doesnt matter, S is black d, is red
+  if(s->color == false && d->color == true){
+    cout<<"Case 6"<<endl;
+    //    return;
+
+    //rotate -> FUCKED
+    if(p->right == s){
+      deleteCase6L(n,p,s,c,d,root);
+    }
+    if(p->left == s){
+      deleteCase6R(n,p,s,c,d,root);
+    }
+
+    //recolor
+    s->color = p->color;
+    p->color = false;
+    d->color = false;
+    
+  }
+  
+}
+
+// MESSED UPPPPP!!!
+void deleteCase6R(node* n, node* p, node* s, node* c, node* d, node*& root){
+
+  if(s->right != NULL){
+    p->left = s->right;
+  }else{
+    p->left = NULL;
+  }
+  s->right = p;
+  s->left = d;
+  
+
+
+  d->parent = s;
+  s->parent = p->parent;
+
+  if(p->parent->left == p){
+    p->parent->left = s;
+  }
+  if(p->parent->right == p){
+    p->parent->right = s;
+  }
+
+  p->parent = s;
+ 
+  if(p->left != NULL){
+    p->left->parent = p;
+  }
+
+
+  if(p == root){
+    root = s;
+  }
+
+
+}
+
+void deleteCase6L(node* n, node* p, node* s, node* c, node* d, node*& root){
+
+  if(s->left != NULL){
+    p->right = s->left;
+  }else{
+    p->right = NULL;
+  }
+  
+  s->left = p;
+  s->right = d;
+
+
+
+  d->parent = s;
+  s->parent = p->parent;
+  
+  if(p->parent->left == p){
+    p->parent->left = s;
+  }
+  if(p->parent->right == p){
+    p->parent->right = s;
+  }
+  
+  p->parent = s;
+  
+  if(p->right != NULL){
+    p->right->parent = p;
+  }
+
+
+  if(p == root){
+    root = s;
+  }
+}
+
+void deleteCase5R(node* n, node* p, node* s, node* c, node* d, node*& root){
+
+  if(c->left != NULL){
+    s->right = c->left;
+  }else{
+    s->right = NULL;
+  }
+  if(s->right != NULL){
+    s->right->parent = s;
+  }
+  c->left = s;
+  p->left = c;
+
+  c->parent = p;
+  s->parent = c;
+  
+}
+
+void deleteCase5L(node* n, node* p, node* s, node* c, node* d, node*& root){
+
+  if(c->right != NULL){
+    s->left = c->right;
+  }else{
+    s->left = NULL;
+  }
+  if(s->left != NULL){
+    s->left->parent = s;
+  }
+  c->right = s;
+  p->right = c;
+
+  c->parent = p;
+  s->parent = c;
   
 }
 

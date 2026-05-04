@@ -56,6 +56,10 @@ void simpleDeletion(node* n, node*& root);
 void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root);
 node* getSuccessor(node* n);
 
+// delete rotations
+void deleteCase3L(node* n, node* p, node* s, node* c, node* d, node*& root);
+void deleteCase3R(node* n, node* p, node* s, node* c, node* d, node*& root);
+
 int main(){
 
   string command = "";
@@ -256,15 +260,21 @@ void simpleDeletion(node* n, node*& root){
       //check for red
       if(n->left->color == true){
 	cout<<"Running simple case 2, left side"<<endl;
-	n->left->parent = n->parent;
-	n->left->color = false;
-	if(n->parent->left == n){ //set parents next pointer equal to this
-	  n->parent->left = n->left;
+	if(n != root){
+	  n->left->parent = n->parent;
+	  n->left->color = false;
+	  if(n->parent->left == n){ //set parents next pointer equal to this
+	    n->parent->left = n->left;
+	  }
+	  if(n->parent->right == n){
+	    n->parent->right = n->left;
+	  }
+	  delete n;
+	}else{
+	  root = n->left;
+	  root->color = false;
+	  delete n;
 	}
-	if(n->parent->right == n){
-	  n->parent->right = n->left;
-	}
-	delete n;
       }
     }
 
@@ -273,15 +283,21 @@ void simpleDeletion(node* n, node*& root){
       //check for red
       if(n->right->color == true){
 	cout<<"Running simple case 2, right side"<<endl;
-	n->right->parent = n->parent;
-	n->right->color = false;
-	if(n->parent->left == n){ //set parents next pointer equal to this
+	if(n != root){
+	  n->right->parent = n->parent;
+	  n->right->color = false;
+	  if(n->parent->left == n){ //set parents next pointer equal to this
 	  n->parent->left = n->right;
 	}
-	if(n->parent->right == n){
-	  n->parent->right = n->right;
+	  if(n->parent->right == n){
+	    n->parent->right = n->right;
+	  }
+	  delete n;
+	}else{
+	  root = n->right;
+	  root->color = false;
+	  delete n;
 	}
-	delete n;
       }
     }
     // copy bstdelete?
@@ -366,7 +382,110 @@ void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
     cout<<"Case 1"<<endl;
     return;
   }
+
+  // Case 2: P, C, S, D are all BLACK or NULL FUNCTIONAL FOR 1 ITERATION
+  if(p->color == false &&  (s == NULL || s->color == false) &&
+     (c == NULL || c->color == false) && 
+     (d == NULL || d->color == false)){
+    cout<<"Case 2"<<endl;
+    // recolor S to red
+    s->color = true;
+    n = p; // reporpogate with this
+    // reupdate values for n as p
+    getValues(n,p,s,c,d,root);
+    //recall delete 
+    complexDeletion(n,p,s,c,d,root);
+    
+  }
+
+  // Case 3: Red sibiling, black P + c + d
+  if((s != NULL && s->color == true) && p->color == false &&
+     (c == NULL || c->color == false) &&
+     (d == NULL || d->color == false)){
+    cout<<"Case 3"<<endl;
+
+    // rotate so s is parent of p
+    if(p->left == n){
+      deleteCase3L(n,p,s,c,d,root);
+    }
+    if(p->right == n){
+      deleteCase3R(n,p,s,c,d,root);
+    }
+    //recolor p to red and s to black
+    p->color = true;
+    s->color = false;
+
+    // reassign n values -- cant reuse func cause n is NULL
+    s = c;
+    if(p->right == s){
+      c = s->left;
+      d = s->right;
+    }
+    if(p->left == s){
+      d = s->left;
+      c = s->right;
+    }
+   
+    // Re call cause case 4,5,6 could fix it next
+    complexDeletion(n,p,s,c,d,root);
+  }
   
+}
+
+void deleteCase3R(node* n, node* p, node* s, node* c, node* d, node*& root){
+
+  s->right = p;
+  p->left = c;
+
+  //fix parents
+  if(p->parent != NULL){
+    if(p->parent->left == p){
+      p->parent->left = s;
+      s->parent = p->parent;
+    }
+    if(p->parent->right == p){
+      p->parent->right = s;
+      s->parent = p->parent;
+    }
+  }
+  c->parent = p;
+  p->parent = s;
+
+
+  // if p didnt have parent aka it was the root
+  if(root == p){
+    root = s;
+  }
+
+  
+}
+
+
+void deleteCase3L(node* n, node* p, node* s, node* c, node* d, node*& root){
+
+  s->left = p;
+  p->right = c;
+
+  //fix parents
+  if(p->parent != NULL){
+    if(p->parent->left == p){
+      p->parent->left = s;
+      s->parent = p->parent;
+    }
+    if(p->parent->right == p){
+      p->parent->right = s;
+      s->parent = p->parent;
+    }
+  }
+  c->parent = p;
+  p->parent = s;
+
+
+  // if p didnt have parent aka it was the root
+  if(root == p){
+    root = s;
+  }
+
   
 }
 

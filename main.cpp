@@ -331,7 +331,7 @@ void simpleDeletion(node* n, node*& root){
 // Check all wikipedia cases with this func and fix them and call any corresponding fucntions
 void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
   // Check inputs-> helpful debugging code
-  /*
+  /*  
   if(n != NULL){
     cout<<"Node: "<< n->value;
   }else{
@@ -350,8 +350,8 @@ void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
   if(d != NULL){
     cout<<" Distant Neph: " <<d->value;
   }
+  
   */
-
   // EXECUTE CASES:
 
   // Case 1: We are n is our root, we have iterated all the way up
@@ -364,13 +364,19 @@ void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
   if(p->color == false &&  (s == NULL || s->color == false) &&
      (c == NULL || c->color == false) && 
      (d == NULL || d->color == false)){
-
+    //    cout<<"Case 2"<<endl;
     // recolor S to red
     s->color = true;
     n = p; // reporpogate with this
+    if(n == root){
+      //      cout<<"n is now root ->returning"<<endl;
+      return; // dont reassign values we are DONE
+    }
+    
     // reupdate values for n as p
     getValues(n,p,s,c,d,root);
-    //recall delete 
+      
+    //recall delete
     complexDeletion(n,p,s,c,d,root);
     return;
     

@@ -372,9 +372,42 @@ void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
       //      cout<<"n is now root ->returning"<<endl;
       return; // dont reassign values we are DONE
     }
+
+    p = n->parent;
+    s = getSibiling(n);
+
+    if(s == p->right){
+      if(s != NULL){
+	if(s->left != NULL){
+	c = s->left;
+	}else{
+	  c = NULL;
+	}
+	if(s->right != NULL){
+	  d = s->right;
+	}else{
+	  d = NULL;
+	}
+      }
+    }
+
+    if(s == p->left){
+      if(s != NULL){
+	if(s->right != NULL){
+	c = s->right;
+	}else{
+	  c = NULL;
+	}
+	if(s->left != NULL){
+	  d = s->left;
+	}else{
+	  d = NULL;
+	}
+      }
+    }
     
     // reupdate values for n as p
-    getValues(n,p,s,c,d,root);
+    //    getValues(n,p,s,c,d,root);
       
     //recall delete
     complexDeletion(n,p,s,c,d,root);

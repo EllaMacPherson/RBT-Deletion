@@ -6,22 +6,19 @@
 using namespace std;
 
 /*
-  Ella MacPherson Red black tree insertion 4/14/2026
+  Ella MacPherson red black tree 5/05/2026
   
   1. Every node is either red or black.
   2. All null nodes are considered black.
   3. A red node does not have a red child.
-  4. Every path from a given node to any of its leaf nodes (that is, to any descendant null node) goes
-  through the same number of black nodes.
-
-  DELETION
+  4. Every path from a given node to any of its leaf nodes (Black height)
 
  */
 
 
 // Functions declerations 
 
-// get uncle return node*
+// Get nodes in relation to a node, n
 node* getUncle(node* n);
 node* getSibiling(node* n);
 node* getCloseNeph(node* n, node* s);
@@ -33,11 +30,10 @@ void bstinsert(node*& root, node* current, int value, node*& storage);
 // Search
 void search(int s, node* current, bool& found);
 
-// detect case/check violations
+// Check violations for insertion
 void checkViolations(node* myNode, node* parent, node* grandparent, node* uncle, node*& root);
 
-// function for each case:
-
+// Case functions for insertion
 void case2(node* n, node* p, node* g, node* u, node*& root);
 // 5L+R rotations
 void case5R(node* n, node* p, node* g, node* u, node*& root);
@@ -49,14 +45,17 @@ void case6R(node* n, node* p, node* g, node* u, node*& root);
 // Display tree
 void print(int depth, node* current);
 
-// DELETE functions
+// Delete functions
+
+// Get functions
 void getNode(int input, node* current, node*& n);
 void getValues(node*& n, node*& p, node*& s, node*& c, node*& d, node*& root);
+node* getSuccessor(node* n);
+// Different deletion case types
 void simpleDeletion(node* n, node*& root);
 void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root);
-node* getSuccessor(node* n);
 
-// delete rotations
+// Delete rotations
 void deleteCase3L(node* n, node* p, node* s, node* c, node* d, node*& root);
 void deleteCase3R(node* n, node* p, node* s, node* c, node* d, node*& root);
 void deleteCase5R(node* n, node* p, node* s, node* c, node* d, node*& root);
@@ -64,25 +63,25 @@ void deleteCase5L(node* n, node* p, node* s, node* c, node* d, node*& root);
 void deleteCase6L(node* n, node* p, node* s, node* c, node* d, node*& root);
 void deleteCase6R(node* n, node* p, node* s, node* c, node* d, node*& root);
 
+
 int main(){
 
   string command = "";
-  // Hold root of the tree, start as NULL
   node* root = NULL;
   
   // Loop for commands
   while(true){
 
-    cout<<"Enter INSERT, FILE, PRINT, SEARCH"<<endl;
+    cout<<"Enter INSERT, FILE, PRINT, SEARCH, DELETE"<<endl;
     getline(cin, command);
 
     if(command == "SEARCH" || command == "search"){
-      //search func + output
+      // Search func and output
       cout<<"What number are you searching for?"<<endl;
       int s = 0;
       cin>>s;
       cin.ignore();
-      bool found = false; // keep track
+      bool found = false; // keep track if its found
       if(root != NULL){
 	search(s, root, found);
 	if(found == false){
@@ -106,10 +105,10 @@ int main(){
       if(root == NULL){
 	cout<<"Tree is empty"<<endl;
       }else{
+	// Check if it exists to proceed with deletion
 	bool exists = false;
 	search(input, root, exists);
 	if(exists == true){
-
 	  
 	  // Get all node values relevant for checking cases
 	  node* n = NULL;
@@ -123,27 +122,8 @@ int main(){
 	  // Test ability to get case valuse
 	  getValues(n, p, s, c, d, root);
 
-	  // pre case checking deletion func
+	  // Start with simple deletion -> this will call complex cases if needed
 	  simpleDeletion(n, root);
-	  
-	  // I have the ability to get all these values ^^^^^^^^
-	  
-
-	  // Only need to check cases once its a double black scenario
-
-	  // OKAY CONCLUSION ASK MR G THIS NEXT TIME:
-	  // 1. feed in node to delete into old bst and remove iteration through. get tothe point where its structuerd, but coloring is js messed u
-	  // 2. Then save color of deleted node
-	  // 3. Save successors color too and position
-
-	  // 4. If double black or deleted node is black -> THEN check cases and fix them?
-
-	  //what im running with:
-
-	  // 1. Get all values and data line in delete command func
-	  // Create a deletefunc for SIMPLE delete
-	  // then anotha deletefunc for complex cases ->fixdelete
-
 	  
 	}else{
 	  cout<<"This data is not in the tree"<<endl;
@@ -247,23 +227,22 @@ int main(){
 
 }
 
+// Deletion function that encapsulates the "Simple" delete cases
 void simpleDeletion(node* n, node*& root){
 
   // If deleted item is ROOT and NO CHILDREN
   if(n == root && n->right == NULL && n->left == NULL){
-    cout<<"Running simple case 3"<<endl;
     delete n;
     root = NULL;
     return; // Done
   }
 
-  // If color of node is RED -> just replace it with its child it
+  // If color of node is RED 
   else if((n->left != NULL && n->right == NULL) || (n->right != NULL && n->left == NULL)){
     // left child case
     if(n->left != NULL){
       //check for red
       if(n->left->color == true){
-	cout<<"Running simple case 2, left side"<<endl;
 	if(n != root){
 	  n->left->parent = n->parent;
 	  n->left->color = false;
@@ -286,7 +265,6 @@ void simpleDeletion(node* n, node*& root){
     if(n->right != NULL){
       //check for red
       if(n->right->color == true){
-	cout<<"Running simple case 2, right side"<<endl;
 	if(n != root){
 	  n->right->parent = n->parent;
 	  n->right->color = false;
@@ -304,21 +282,18 @@ void simpleDeletion(node* n, node*& root){
 	}
       }
     }
-    // copy bstdelete?
   }
   
   // 2 child case, swap integers and make it a 1 child delete case
   else if(n->right != NULL & n->left != NULL){
     // get successor value
     node* successor = getSuccessor(n);
-    cout<<"simple case 1, sucessor value: "<<successor->value<<endl;
     n->value = successor->value;
     simpleDeletion(successor, root);
   }
 
   // No children and is RED, remove leaf node
   else if(n->right == NULL && n->left == NULL && n->color == true){
-    cout<<"simple case 4"<<endl;
     if(n->parent->left == n){
       n->parent->left = NULL;
     }
@@ -330,7 +305,6 @@ void simpleDeletion(node* n, node*& root){
 
   // has no children and is BLACK (complex case, call func for that); if root being deleted and matches all those is handled earlier
   else if(n->right == NULL && n->left == NULL && n->color == false){
-    cout<<"Complex case, calling complex func"<<endl;
 
     node* p = NULL;
     node* s = NULL;
@@ -339,7 +313,6 @@ void simpleDeletion(node* n, node*& root){
     
     getValues(n,p,s,c,d,root);
 
-    
     // set N equal to NULL
     if(p->right == n){
       p->right = NULL;
@@ -349,16 +322,16 @@ void simpleDeletion(node* n, node*& root){
     delete n;
     
     n = NULL;
+
     // On first iteration, n must be NULL
     complexDeletion(n,p,s,c,d,root);
   }
 }
 
-// Check alll wikipedia cases with this func and fix them, call any corresponding fucntions
+// Check all wikipedia cases with this func and fix them and call any corresponding fucntions
 void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
-  // Check inputs
-  cout<<"Executing Complex Deletion: "<<endl;
-
+  // Check inputs-> helpful debugging code
+  /*
   if(n != NULL){
     cout<<"Node: "<< n->value;
   }else{
@@ -377,13 +350,13 @@ void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
   if(d != NULL){
     cout<<" Distant Neph: " <<d->value;
   }
+  */
 
-  cout<<endl;
   // EXECUTE CASES:
 
   // Case 1: We are n is our root, we have iterated all the way up
   if(n == root){
-    cout<<"Case 1"<<endl;
+
     return;
   }
 
@@ -391,7 +364,7 @@ void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
   if(p->color == false &&  (s == NULL || s->color == false) &&
      (c == NULL || c->color == false) && 
      (d == NULL || d->color == false)){
-    cout<<"Case 2"<<endl;
+
     // recolor S to red
     s->color = true;
     n = p; // reporpogate with this
@@ -407,7 +380,7 @@ void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
   if((s != NULL && s->color == true) && p->color == false &&
      (c == NULL || c->color == false) &&
      (d == NULL || d->color == false)){
-    cout<<"Case 3"<<endl;
+
 
     // rotate so s is parent of p
     if(p->left == n){
@@ -439,7 +412,7 @@ void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
   // Case 4: s + c + d are black, p is red
   if(p->color == true && (s == NULL || s->color == false) &&
      (c == NULL || c->color == false) && (d == NULL || d->color == false)){
-       cout<<"Case 4"<<endl;
+
        // make p black, s red
        p->color = false;
        s->color = true;
@@ -449,7 +422,7 @@ void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
   // Case 5: s + d, are black, c is red, p is ANY COLOR
   if((s == NULL || s->color == false) && (d == NULL || d->color == false)
      && (c != NULL && c->color == true)){
-    cout<<"Case 5"<<endl;
+
     // Rotate
     if(p->right == s){ // n is on left side
    
@@ -502,10 +475,8 @@ void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
 
   // Case 6: p + c doesnt matter, S is black d, is red
   if(s->color == false && d->color == true){
-    cout<<"Case 6"<<endl;
-    //    return;
 
-    //rotate -> FUCKED
+    //rotate
     if(p->right == s){
       deleteCase6L(n,p,s,c,d,root);
     }
@@ -522,7 +493,7 @@ void complexDeletion(node* n, node* p, node* s, node* c, node* d, node*& root){
   
 }
 
-// MESSED UPPPPP!!!
+// Rotate for case6 right side
 void deleteCase6R(node* n, node* p, node* s, node* c, node* d, node*& root){
 
   if(s->right != NULL){
@@ -559,6 +530,7 @@ void deleteCase6R(node* n, node* p, node* s, node* c, node* d, node*& root){
 
 }
 
+// Rotate for case6 left side
 void deleteCase6L(node* n, node* p, node* s, node* c, node* d, node*& root){
 
   if(s->left != NULL){
@@ -594,6 +566,7 @@ void deleteCase6L(node* n, node* p, node* s, node* c, node* d, node*& root){
   }
 }
 
+// Rotate for case 5 right
 void deleteCase5R(node* n, node* p, node* s, node* c, node* d, node*& root){
 
   if(c->left != NULL){
@@ -612,6 +585,7 @@ void deleteCase5R(node* n, node* p, node* s, node* c, node* d, node*& root){
   
 }
 
+// Rotate for case 5 left
 void deleteCase5L(node* n, node* p, node* s, node* c, node* d, node*& root){
 
   if(c->right != NULL){
@@ -630,6 +604,7 @@ void deleteCase5L(node* n, node* p, node* s, node* c, node* d, node*& root){
   
 }
 
+// Rotate for case 3 right
 void deleteCase3R(node* n, node* p, node* s, node* c, node* d, node*& root){
 
   s->right = p;
@@ -655,10 +630,9 @@ void deleteCase3R(node* n, node* p, node* s, node* c, node* d, node*& root){
     root = s;
   }
 
-  
 }
 
-
+// Rotate for case 3 left
 void deleteCase3L(node* n, node* p, node* s, node* c, node* d, node*& root){
 
   s->left = p;
@@ -683,10 +657,9 @@ void deleteCase3L(node* n, node* p, node* s, node* c, node* d, node*& root){
   if(root == p){
     root = s;
   }
-
-  
 }
 
+// Gets successor in relation to n, uses in-order succesor (what wikipedia used)
 node* getSuccessor(node* n){
 
   node* s = n->right;
@@ -698,6 +671,7 @@ node* getSuccessor(node* n){
   return s;
 }
 
+// get p,s,c,d in relation to a node n
 void getValues(node*& n, node*& p, node*& s, node*& c, node*& d, node*& root){
 
   p = NULL;
@@ -715,27 +689,6 @@ void getValues(node*& n, node*& p, node*& s, node*& c, node*& d, node*& root){
     c = getCloseNeph(n, s);
     d = getDistantNeph(n, s);
   }
-  
-  /*// Testing outputs
-  cout<<"Deleting: "<<endl;
-  
-  cout<<"Node: "<< n->value;
-
-  if(p != NULL){
-	    cout<<" Parent: "<< p->value;
-  }
-  if(s != NULL){
-    cout<<" Sibiling: "<< s->value;
-  }
-  if(c != NULL){
-    cout<<" Close Neph: "<<c->value;
-  }
-  if(d != NULL){
-    cout<<" Distant Neph: " <<d->value;
-  }
-
-  cout<<endl;
-*/  
 	  
 }
 
@@ -822,20 +775,6 @@ void search(int s, node* current, bool& found){
 
 // Check for violations
 void checkViolations(node* n, node* p, node* g, node* u, node*& root){
-
-  // Helpful test cout's that inform of current node that needs to be fixed respective values
-  /*    cout<<"Node: "<<n->value<<" ";
-    cout<<"Root: "<<root->value<<" ";
-    cout<<"Parent: "<<p->value<<" ";
-  
-    if(u != NULL){
-      cout<<"Uncle: "<<u->value<<" ";
-    }
-    if(g != NULL){
-      cout<<"Grandparent: "<< g->value<<" ";
-    }
-   */
-  //  cout<<endl;
 
   // CASE 1: Current Nodes parent is BLACK
   if(p->color == false){

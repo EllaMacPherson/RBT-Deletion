@@ -548,12 +548,19 @@ void deleteCase6R(node* n, node* p, node* s, node* c, node* d, node*& root){
   d->parent = s;
   s->parent = p->parent;
 
-  if(p->parent->left == p){
-    p->parent->left = s;
+  cout<<"here"<<endl;
+  cout<<p->value<<endl;
+  if(p->parent != NULL){
+    if(p->parent->left == p){
+      p->parent->left = s;
+    }
+    if(p->parent->right == p){
+      p->parent->right = s;
+    }
+  }else{
+   root = s;
   }
-  if(p->parent->right == p){
-    p->parent->right = s;
-  }
+  cout<<"after"<<endl;
 
   p->parent = s;
  
@@ -585,12 +592,15 @@ void deleteCase6L(node* n, node* p, node* s, node* c, node* d, node*& root){
 
   d->parent = s;
   s->parent = p->parent;
-  
-  if(p->parent->left == p){
-    p->parent->left = s;
-  }
-  if(p->parent->right == p){
-    p->parent->right = s;
+  if(p->parent != NULL){
+    if(p->parent->left == p){
+      p->parent->left = s;
+    }
+    if(p->parent->right == p){
+      p->parent->right = s;
+    }
+  }else{
+    root = s;
   }
   
   p->parent = s;

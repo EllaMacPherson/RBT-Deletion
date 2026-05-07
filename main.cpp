@@ -63,6 +63,8 @@ void deleteCase5L(node* n, node* p, node* s, node* c, node* d, node*& root);
 void deleteCase6L(node* n, node* p, node* s, node* c, node* d, node*& root);
 void deleteCase6R(node* n, node* p, node* s, node* c, node* d, node*& root);
 
+// Quut
+void deleteAll(node*& root);
 
 int main(){
 
@@ -72,9 +74,14 @@ int main(){
   // Loop for commands
   while(true){
 
-    cout<<"Enter INSERT, FILE, PRINT, SEARCH, DELETE"<<endl;
+    cout<<"Enter INSERT, FILE, PRINT, SEARCH, DELETE, QUIT"<<endl;
     getline(cin, command);
 
+    if(command == "QUIT" || command == "quit"){
+      deleteAll(root);
+      return 0;
+    }
+    
     if(command == "SEARCH" || command == "search"){
       // Search func and output
       cout<<"What number are you searching for?"<<endl;
@@ -225,6 +232,18 @@ int main(){
     }
   }
 
+}
+
+void deleteAll(node*& root){
+  if(root == NULL){
+    return;
+  }
+
+  deleteAll(root->left);
+  deleteAll(root->right);
+
+  delete root;
+  root = NULL;
 }
 
 // Deletion function that encapsulates the "Simple" delete cases
